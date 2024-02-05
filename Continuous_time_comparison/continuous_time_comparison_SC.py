@@ -133,7 +133,7 @@ if __name__ == '__main__':
 
     # cb = plt.colorbar(cf, orientation="vertical")
     #
-    # tick_locator = ticker.MaxNLocator(nbins=5)  # colorbar上的刻度值个数
+    # tick_locator = ticker.MaxNLocator(nbins=5)  
     # cb.locator = tick_locator
     # cb.update_ticks()
     # cb.set_label(loc='top', label=r"$f(x_1,x_2)$")
