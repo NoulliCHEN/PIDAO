@@ -14,6 +14,7 @@ This repository is provided for research purposes only.
 - tensorboard
 - torchvision 0.11.3
 - torchaudio 0.10.2
+- os
 
 ## Installation
 
@@ -21,7 +22,7 @@ This repository is provided for research purposes only.
 conda create -n PIDAO python=3.8
 conda activate PIDAO
 conda install pytorch==1.10.2 torchvision==0.11.3 torchaudio==0.10.2 cudatoolkit=10.2 -c pytorch -c conda-forge
-conda install tensorboard scipy
+conda install tensorboard scipy os
 ```
 
 It can be installed within half an hour, mainly depending on the internet speed.
@@ -34,6 +35,10 @@ We provide a detailed readme file to demo the software/code in each case's folde
 - MNIST_training_path_projection folder >> the projection of the training path of MNIST classification
 - Continuous_time_comparison >> the comparison of different continuous-time optimizers
 - Discrete_time_comparison >> the comparison of different discrete-time optimizers
+- FNO1d_Burgers >> FNO for learning Burgers' equation
+- FNO2d_darcy >> FNO for learning Darcy flow
+- PINNs_Burgers >> PINNs for learning Burgers' equation
+- PINNs_cavity >> PINNs for learning cavity flow
 
 If you use the codes in your research work, please cite the following paper: 
   
