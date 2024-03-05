@@ -20,7 +20,7 @@ python FashionMNIST_optimizer.py
 ```
 It takes about one and a half hours to train the neural network on the NVIDIA RTX 3090 GPU. The expected output of this demo contains 'Train Loss', 'Valid Loss', 'Train Acc.' and 'Valid Acc.'.
 
-For Cifar10: run Cifar10_optimizer.py
+For Cifar10:
 ```shell
 python run Cifar10_optimizer.py
 ```
