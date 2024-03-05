@@ -12,3 +12,31 @@ If you use the codes in your research work, please cite the following paper:
   	  year={2024}
 	}
 
+## Requirements
+
+- CUDA 10.2
+- Python 3.8
+- pytorch 1.10.2
+- numpy
+- scipy
+- tensorboard
+- torchvision 0.11.3
+- torchaudio 0.10.2
+
+## Installation
+
+```shell
+conda create -n PIDAO python=3.8
+conda activate PIDAO
+conda install pytorch==1.10.2 torchvision==0.11.3 torchaudio==0.10.2 cudatoolkit=10.2 -c pytorch -c conda-forge
+conda install tensorboard scipy
+```
+
+It can be installed within half an hour, mainly depending on the internet speed.
+
+## Required Data and Demo
+
+We provide a detailed readme file to demo the software/code in each case's folder. The download link of each required dataset is also provided in the readme file.
+
+
+
