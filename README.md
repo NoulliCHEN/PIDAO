@@ -4,14 +4,6 @@
 
 This repository is provided for research purposes only. 
 
-If you use the codes in your research work, please cite the following paper: 
-  
-	@article{chen2024accelerated,
-  	  title={Accelerated optimization in deep learning with a proportion-integral-derivative controller},
-  	  author={Chen, Song and Liu, Jiaxu and Cai, Shengze and Xu, Chao and Chu, Jian},
-  	  year={2024}
-	}
-
 ## Requirements
 
 - CUDA 10.2
@@ -38,5 +30,16 @@ It can be installed within half an hour, mainly depending on the internet speed.
 
 We provide a detailed readme file to demo the software/code in each case's folder. The download link of each required dataset is also provided in the readme file.
 
+- data_classfication folder >> MNIST/FashionMNIST/Cifar10 classification
+- MNIST_training_path_projection folder >> the projection of the training path of MNIST classification
+- Continuous_time_comparison >> the comparison of different continuous-time optimizers
+- Discrete_time_comparison >> the comparison of different discrete-time optimizers
 
+If you use the codes in your research work, please cite the following paper: 
+  
+	@article{chen2024accelerated,
+  	  title={Accelerated optimization in deep learning with a proportion-integral-derivative controller},
+  	  author={Chen, Song and Liu, Jiaxu and Cai, Shengze and Xu, Chao and Chu, Jian},
+  	  year={2024}
+	}
 
