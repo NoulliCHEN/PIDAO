@@ -1,0 +1,3 @@
+```shell
+python Burgers.py
+```
