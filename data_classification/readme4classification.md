@@ -12,13 +12,16 @@ For MNIST:
 ```shell
 python MNIST_optimizer.py
 ```
+It takes about one and a half hours to train the neural network on the NVIDIA RTX 3090 GPU. The expected output of this demo contains 'Train Loss', 'Valid Loss', 'Train Acc.' and 'Valid Acc.'.
 
 For FashionMNIST:
 ```shell
 python FashionMNIST_optimizer.py
 ```
+It takes about one and a half hours to train the neural network on the NVIDIA RTX 3090 GPU. The expected output of this demo contains 'Train Loss', 'Valid Loss', 'Train Acc.' and 'Valid Acc.'.
 
 For Cifar10: run Cifar10_optimizer.py
 ```shell
 python run Cifar10_optimizer.py
 ```
+It takes about three hours to train the neural network on the NVIDIA RTX 3090 GPU. The expected output of this demo contains 'Train Loss', 'Valid Loss', 'Train Acc.' and 'Valid Acc.'.
