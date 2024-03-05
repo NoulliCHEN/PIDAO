@@ -1,1 +1,0 @@
-直接运行fourier_2d_PIDAO.py文件就行
