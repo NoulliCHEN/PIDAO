@@ -1,6 +1,6 @@
 Due to the file limit of Github, the data can be found below:
 
-  1. MNIST: http://yann.lecun.com/exdb/mnist/, 
+  1. MNIST: https://git-disl.github.io/GTDLBench/datasets/mnist_datasets/, 
  
   2. FashionMNIST: https://www.kaggle.com/datasets/zalando-research/fashionmnist, 
   
