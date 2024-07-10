@@ -16,6 +16,8 @@ This repository is provided for research purposes only.
 - torchaudio 0.10.2
 - os
 - matplotlib
+- pyDOE
+- h5py
 
 ## Installation
 
@@ -23,7 +25,7 @@ This repository is provided for research purposes only.
 conda create -n PIDAO python=3.8
 conda activate PIDAO
 conda install pytorch==1.10.2 torchvision==0.11.3 torchaudio==0.10.2 cudatoolkit=10.2 -c pytorch -c conda-forge
-conda install tensorboard scipy os matplotlib
+conda install tensorboard scipy os matplotlib pyDOE h5py
 ```
 
 It can be installed within half an hour, mainly depending on the internet speed.
