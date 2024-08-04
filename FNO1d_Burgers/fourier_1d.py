@@ -1,8 +1,3 @@
-"""
-@author: Zongyi Li
-This file is the Fourier Neural Operator for 1D problem such as the (time-independent) Burgers equation discussed in Section 5.1 in the [paper](https://arxiv.org/pdf/2010.08895.pdf).
-"""
-
 import numpy as np
 import torch
 import torch.nn as nn
@@ -24,6 +19,7 @@ from utils import Logger, AverageMeter, accuracy, mkdir_p, savefig
 
 from Adam import Adam
 from PIDAO_SI_AAdRMS import PIDAccOptimizer_SI_AAdRMS
+from AdaHB import Adaptive_HB
 
 torch.manual_seed(0)
 np.random.seed(0)
@@ -160,7 +156,7 @@ def main(opt_name):
     batch_size = 20
     learning_rate = 0.001
 
-    epochs = 500
+    epochs = 1000
     step_size = 50
     gamma = 0.6
 
@@ -211,7 +207,9 @@ def main(opt_name):
         optimizer = torch.optim.AdamW(model.parameters(), lr=kp*p_a_lr, weight_decay=1e-4)
     elif opt_name == 'RMSprop':
         optimizer = torch.optim.RMSprop(model.parameters(),lr=kp*p_a_lr,alpha=0.99,eps=1e-08,weight_decay=1e-4,momentum=0,centered=False)
-    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=step_size, gamma=gamma)
+    elif opt_name == 'AdaHB':
+        optimizer = Adaptive_HB(model.parameters(), lr=kp*p_a_lr, weight_decay=1e-4, momentum_init=0.9)
+    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=step_size, gamma=1)
     
     print('Here is a training process by {0}'.format(opt_name))
 
@@ -277,6 +275,7 @@ def main(opt_name):
 if __name__ == "__main__":
     main('Adam')
     main('PIDAO')
-    main('AdamW')
-    main('RMSprop')
+    # main('AdamW')
+    # main('RMSprop')
+    # main('AdaHB')
 # scipy.io.savemat('pred/burger_test.mat', mdict={'pred': pred.cpu().numpy()})
