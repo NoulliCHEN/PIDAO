@@ -1,16 +1,4 @@
-# Copyright (c) 2023 Se42 Authors. All Rights Reserved.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     https://www.gnu.org/licenses/why-not-lgpl.html
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+
 import torch
 from tools import *
 import cavity_data as cavity
@@ -19,6 +7,7 @@ from utils import Logger, AverageMeter, accuracy, mkdir_p, savefig
 import os
 
 from PIDAO_SI_AAdRMS import PIDAccOptimizer_SI_AAdRMS
+from AdaHB import Adaptive_HB
 p_ar_lr = 1e-3
 equivalent_momentum = 0.9
 momentum_ar = (1 / equivalent_momentum - 1) / p_ar_lr
@@ -78,12 +67,14 @@ def train(opt_name, net_params=None):
       opt = PIDAccOptimizer_SI_AAdRMS(params=PINN.net.parameters(), lr=p_ar_lr, weight_decay=0,momentum=momentum_ar, kp=kp_ar, ki=ki_ar, kd=kd_ar)
     elif opt_name == 'SGDM':
       opt = torch.optim.SGD(params=PINN.net.parameters(), lr=kp*p_ar_lr, weight_decay=0, momentum=0.9)
+    elif opt_name == 'AdaHB':
+        opt = Adaptive_HB(params=PINN.net.parameters(), lr=p_ar_lr, weight_decay=0, momentum_init=0.9)
     
     logger = Logger(path + opt_name + '.txt')
     logger.set_names(['Learning Rate', 'Loss', 'Eq Loss', 'BC Loss', 'Error u', 'Error v'])
     
     print("Here is the training process by the " + opt_name)
-    PINN.train(num_epoch=100000, test_set=test_set, logger=logger, optimizer=opt)
+    PINN.train(num_epoch=50000, test_set=test_set, logger=logger, optimizer=opt)
     PINN.evaluate(x_star, y_star, u_star, v_star, opt_name=opt_name)
     
     
@@ -92,4 +83,4 @@ if __name__ == "__main__":
     # train(opt_name='PIDAO')
     # train(opt_name='Adam')
     # train(opt_name='RMSprop')
-    train(opt_name='SGDM')
+    train(opt_name='AdaHB')
