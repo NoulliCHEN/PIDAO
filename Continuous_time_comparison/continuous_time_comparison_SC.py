@@ -14,14 +14,11 @@ from Rastrigin import Rastrigin_func
 
 
 def set_para(lr):
-    mu = 1/10
-    k = 9
-    kd = k * m.sqrt(lr)
-    momentum = 2*m.sqrt(mu)
-    # kp = 1 + (2*k-1)*m.sqrt(mu * lr)
-    kp = momentum * kd + 0.0001
-    # ki = 2 * pow(mu, 1.5) * kd ** 2-0.0001
-    ki = (mu * kd ** 2 + momentum * kd - kp) * momentum-0.0001
+    equivalent_momentum = 0.9
+    momentum = (1 / equivalent_momentum - 1) / lr
+    kp = 1 * lr * (1 + momentum * lr) / lr ** 2
+    ki = 60
+    kd = 2.5
     return kp, ki, kd, momentum
 
 
