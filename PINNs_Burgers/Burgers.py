@@ -31,6 +31,7 @@ import os
 
 from PIDAO_SI_AAdRMS import PIDAccOptimizer_SI_AAdRMS
 from utils import Logger, AverageMeter, accuracy, mkdir_p, savefig
+from AdaHB import Adaptive_HB
 
 #Set default dtype to float32
 torch.set_default_dtype(torch.float)
@@ -375,6 +376,8 @@ f_hat = torch.zeros(X_f_train.shape[0],1).to(device)
 layers = np.array([2,20,20,20,20,20,1]) #5 hidden layers
 
 PINN = Sequentialmodel(layers)
+torch.save(PINN, path + '/initial_net.pkl')
+PINN = torch.load(path + '/initial_net.pkl')
        
 PINN.to(device)
 
@@ -406,13 +409,16 @@ ki_a = 4
 kd_a = 1
 kp_a = 1 * p_a_lr * (1 + momentum_a * p_a_lr) / p_a_lr ** 2
 
-optimizer = PIDAccOptimizer_SI_AAdRMS(
-    PINN.parameters(), lr=p_a_lr, weight_decay=0,
-    momentum=momentum_a, kp=kp_a, ki=ki_a, kd=kd_a
-)
-opt_name = 'PIDAO'
+# optimizer = PIDAccOptimizer_SI_AAdRMS(
+#     PINN.parameters(), lr=p_a_lr, weight_decay=0,
+#     momentum=momentum_a, kp=kp_a, ki=ki_a, kd=kd_a
+# )
+# opt_name = 'PIDAO'
 
-'Adam Optimizer'
+optimizer = Adaptive_HB(params=PINN.parameters(), lr=p_a_lr, weight_decay=0, momentum_init=0.9)
+opt_name = 'AdaHB'
+    
+
 # optimizer = optim.Adam(PINN.parameters(), lr=0.001,betas=(0.9, 0.999), eps=1e-08, weight_decay=0, amsgrad=False)
 # opt_name = 'Adam'
 
