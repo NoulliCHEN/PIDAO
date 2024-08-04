@@ -9,14 +9,27 @@ from torch.autograd import Variable
 import torch.nn.functional as F
 import os
 from utils import Logger, AverageMeter, accuracy, mkdir_p, savefig
+import time
 
 from PIDAO_SI import PIDAccOptimizer_SI
 from PIDAO_Sym_Tz import PIDAccOptimizer_Sym_Tz
 from PIDAO_SI_AAdRMS import PIDAccOptimizer_SI_AAdRMS
+from PIDopt import PIDOptimizer
+from AdaHB import Adaptive_HB
 
 
-# model_save_dir = 'data/MNIST/models'
-
+import argparse
+# args configurationz
+parser = argparse.ArgumentParser(description='FashionMNIST Example Config')
+parser.add_argument('--lr', type=float, default=0.03, help='learning rate')
+parser.add_argument('--momentum', type=float, default=0.9, help='momentum')
+parser.add_argument('--ki', type=float, default=0.3, help='ki')
+parser.add_argument('--kd', type=float, default=1, help='kd')
+parser.add_argument('--gpu', type=int, default=0, help='the number of gpu for training')
+parser.add_argument('--batch-size', type=int, default=128, help='batch size')
+parser.add_argument('--num-epochs', type=int, default=2, help='number of epochs to train')
+parser.add_argument('--model', type=str, default='FNN', help='model type')
+args = parser.parse_args()
 
 # MNIST Dataset
 training_data = datasets.MNIST(root='./data',
@@ -32,24 +45,24 @@ test_data = datasets.MNIST(root='./data',
                            )
 
 # Data Loader (Input Pipeline)
-batch_size = 128
+batch_size = args.batch_size
 train_loader = DataLoader(dataset=training_data,
                           batch_size=batch_size,
                           shuffle=True,
-                          num_workers=3
+                          num_workers=2
                           )
 
 test_loader = DataLoader(dataset=test_data,
                          batch_size=batch_size,
                          shuffle=False,
-                         num_workers=3
+                         num_workers=2
                          )
 
 # Hyper Parameters
 input_size = 28 * 28
 hidden_size = 1000
 num_classes = 10
-num_epochs = 200
+num_epochs = args.num_epochs
 
 
 # Neural Network Model (1 hidden layer)
@@ -113,7 +126,6 @@ def train_loop(train_data, model, loss_fn, optimizer, epoch, device, scheduler):
     model.train()
     train_loss_log = AverageMeter()
     train_acc_log = AverageMeter()
-
     for batch, (images, labels) in enumerate(train_data):
         # Convert torch tensor to Variable
         images = images.to(device)
@@ -132,7 +144,7 @@ def train_loop(train_data, model, loss_fn, optimizer, epoch, device, scheduler):
 
         if (batch + 1) % 100 == 0:
             print('Epoch [%d/%d], Step [%d/%d], Loss: %.4f, Acc: %.8f'
-                  % (epoch + 1, num_epochs, batch + 1, len(train_data), train_loss_log.avg,
+                  % (epoch + 1, args.num_epochs, batch + 1, len(train_data), train_loss_log.avg,
                      train_acc_log.avg))
     scheduler.step()
 
@@ -174,8 +186,9 @@ def Optimizers(model, method_name, learning_rate):
     # hyper-parameters for PIDAO-series optimizers
     lr = learning_rate
     alr = 1e-3  # for adaptive optimizers
-    equivalent_momentum = 0.9
+    equivalent_momentum = args.momentum
     momentum = (1 / equivalent_momentum - 1) / lr
+    # ki = 0.1
     ki = 0.1
     kd = 1
     kp = 1 * lr * (1 + momentum * lr) / lr ** 2
@@ -185,6 +198,7 @@ def Optimizers(model, method_name, learning_rate):
     ki_ar = 4
     kd_ar = 1
     kp_ar = 1 * p_ar_lr * (1 + momentum_ar * p_ar_lr) / p_ar_lr ** 2
+
     # a collection of all optimizers for comparisons
     optimizers = {
         'Adam': Adam(model.parameters(), lr=1*alr, weight_decay=0.0001),
@@ -197,6 +211,9 @@ def Optimizers(model, method_name, learning_rate):
         'PIDAO_SI': PIDAccOptimizer_SI(model.parameters(), lr=lr,
                                        weight_decay=0.0001, momentum=momentum, kp=kp, ki=ki, kd=kd),
         'PIDAO_SI_AAdRMS': PIDAccOptimizer_SI_AAdRMS(model.parameters(), lr=p_ar_lr, weight_decay=0.0001, momentum=momentum_ar, kp=kp_ar, ki=ki_ar, kd=kd_ar),
+        'PIDopt': PIDOptimizer(model.parameters(), lr=lr, weight_decay=0.0001,
+                                                   momentum=equivalent_momentum, I=1, D=100),
+        'AdaHB': Adaptive_HB(model.parameters(), lr=alr, weight_decay=0.0001, momentum_init=0.9),
     }
     return optimizers[method_name]
 
@@ -204,6 +221,7 @@ def Optimizers(model, method_name, learning_rate):
 def main(train_data, test_data, model, loss_fn, optimizer, num_epochs, logger, device, scheduler):
     for epoch in range(num_epochs):
         print(f"Epoch {epoch + 1}\n-------------------------------")
+        start_time = time.time()
         train_loss_log, train_acc_log = train_loop(train_data=train_data,
                                                    model=model,
                                                    loss_fn=loss_fn,
@@ -211,18 +229,25 @@ def main(train_data, test_data, model, loss_fn, optimizer, num_epochs, logger, d
                                                    epoch=epoch,
                                                    device=device,
                                                    scheduler=scheduler)
+        end_time = time.time()
+        execution_time =  round(end_time - start_time, 3)
         val_loss_log, val_acc_log = test_loop(test_data=test_data,
                                               model=model,
                                               loss_fn=loss_fn,
                                               device=device)
-        logger.append([optimizer.param_groups[0]['lr'], train_loss_log.avg, val_loss_log.avg, train_acc_log.avg, val_acc_log.avg])
+        logger.append([optimizer.param_groups[0]['lr'], 
+                       train_loss_log.avg, 
+                       val_loss_log.avg, 
+                       train_acc_log.avg, 
+                       val_acc_log.avg, 
+                       execution_time])
     logger.close()
     logger.plot()
 
 
 if __name__ == '__main__':
     # learning_rate = float(input('Your expected learning rate of optimizers is:'))
-    learning_rate = 0.03
+    learning_rate = args.lr
     path = 'results/mnist' + '/learning_rate={0}'.format(learning_rate)
     folder = os.path.exists(path)
     if not folder:
@@ -232,7 +257,7 @@ if __name__ == '__main__':
     NN_set = {'FNN': Net(), 'CNN': CNet()}
     # NN = input('There are fully connected networks (input FNN) and convolutional networks (input CNN) to choose from'
     #            '\n Your expected neural network model for the MNIST is: ')
-    NN = 'FNN'
+    NN = args.model
     initial_net = NN_set[NN]
     path_nn = path + '/NN={0}'.format(NN)
     if not os.path.exists(path_nn):
@@ -240,13 +265,21 @@ if __name__ == '__main__':
     # save the net's structure
     torch.save(initial_net, path_nn + '/initial_net.pkl')
 
-    method = [ 'PIDAO_SI', 'SGDM', 'PIDAO_Sym_Tz', 'Adam', 'PIDAO_SI_AAdRMS']
+    method = [
+        'PIDAO_SI', 
+        'SGDM', 
+        'PIDopt',
+        'PIDAO_Sym_Tz',
+        'Adam',
+        'PIDAO_SI_AAdRMS',
+        'AdaHB'
+        ]
     for optimizer_name in method:
         logger = Logger(path_nn + '/' + optimizer_name + '.txt')
-        logger.set_names(['Learning Rate', 'Train Loss', 'Valid Loss', 'Train Acc.', 'Valid Acc.'])
+        logger.set_names(['Learning Rate', 'Train Loss', 'Valid Loss', 'Train Acc.', 'Valid Acc.', 'Time'])
         net = torch.load(path_nn + '/initial_net.pkl')
         # GPU or CPU
-        device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        device = torch.device(f"cuda:{args.gpu}" if torch.cuda.is_available() else "cpu")
         net.to(device)
         loss = nn.CrossEntropyLoss()
         opt = Optimizers(net, optimizer_name, learning_rate)
@@ -257,7 +290,7 @@ if __name__ == '__main__':
              model=net,
              loss_fn=loss,
              optimizer=opt,
-             num_epochs=num_epochs,
+             num_epochs=args.num_epochs,
              logger=logger,
              device=device,
              scheduler=scheduler
