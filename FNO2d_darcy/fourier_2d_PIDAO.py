@@ -1,7 +1,3 @@
-"""
-@author: Zongyi Li
-This file is the Fourier Neural Operator for 2D problem such as the Darcy Flow discussed in Section 5.2 in the [paper](https://arxiv.org/pdf/2010.08895.pdf).
-"""
 import os
 import numpy as np
 import torch
@@ -21,6 +17,7 @@ import scipy
 from logger import Logger
 
 from PIDAO_SI_AAdRMS import PIDAccOptimizer_SI_AAdRMS
+from AdaHB import Adaptive_HB
 
 
 # torch.manual_seed(0)
@@ -142,7 +139,7 @@ class FNO2d(nn.Module):
 
 def Optimizers(model, opt_name, learning_rate):
     p_ar_lr = learning_rate
-    equivalent_momentum = 0.9
+    equivalent_momentum = 0.7
     momentum_ar = (1 / equivalent_momentum - 1) / p_ar_lr
     kp = 4
     ki_ar = 4
@@ -151,9 +148,10 @@ def Optimizers(model, opt_name, learning_rate):
     Optimizers = {
         'Adam': torch.optim.Adam(model.parameters(), lr=kp*learning_rate, weight_decay=1e-4),
         'AdamW': torch.optim.AdamW(model.parameters(), lr=kp*p_ar_lr, weight_decay=1e-4),
-        'RMSprop': torch.optim.RMSprop(model.parameters(),lr=kp*p_ar_lr,alpha=0.99,eps=1e-08,weight_decay=0,momentum=0,centered=False),
+        'RMSprop': torch.optim.RMSprop(model.parameters(),lr=kp*p_ar_lr,alpha=0.99,eps=1e-08,weight_decay=1e-4,momentum=0,centered=False),
         'PIDAO': PIDAccOptimizer_SI_AAdRMS(model.parameters(), lr=p_ar_lr, weight_decay=1e-4,momentum=momentum_ar, kp=kp_ar, ki=ki_ar, kd=kd_ar
         ),
+        'AdaHB': Adaptive_HB(model.parameters(), lr=kp*p_ar_lr, weight_decay=1e-4, momentum_init=0.9),
     }
     return Optimizers[opt_name]
 
@@ -170,7 +168,7 @@ def FNO_main(train_data_res, save_index, logger, optimizer, model):
     # configs
     ################################################################
     TRAIN_PATH = 'datasets_FNO/piececonst_r421_N1024_smooth1.mat'
-    TEST_PATH = 'datasets_FNO/piececonst_r421_N1024_smooth2.mat'
+    TEST_PATH = 'datasets_FNO/piececonst_r421_N1024_smooth1.mat'
 
     ntrain = 1000  # first 1000 of smooth1.mat
     ntest = 100  # first 100 of smooth1.mat
@@ -192,8 +190,8 @@ def FNO_main(train_data_res, save_index, logger, optimizer, model):
     y_train = reader.read_field('sol')[:ntrain, ::r, ::r][:, :s, :s]  # * 100
 
     reader.load_file(TEST_PATH)
-    x_test = reader.read_field('coeff')[:ntest, ::r, ::r][:, :s, :s]  # * 0.1 - 0.75
-    y_test = reader.read_field('sol')[:ntest, ::r, ::r][:, :s, :s]  # * 100
+    x_test = reader.read_field('coeff')[-ntest:, ::r, ::r][:, :s, :s]  # * 0.1 - 0.75
+    y_test = reader.read_field('sol')[-ntest:, ::r, ::r][:, :s, :s]  # * 100
 
     x_normalizer = UnitGaussianNormalizer(x_train)
     x_train = x_normalizer.encode(x_train)
@@ -299,7 +297,11 @@ if __name__ == "__main__":
 
     learning_rate = 1e-3
 
-    Opt_set = ['PIDAO', 'Adam', 'AdamW', 'RMSprop']
+    Opt_set = [
+        # 'PIDAO', 'Adam', 
+        'AdamW',
+        # 'RMSprop', 'AdaHB'
+               ]
     for opt_name in Opt_set:
         model = torch.load(path + 'initial_net.pkl')
         device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -310,15 +312,7 @@ if __name__ == "__main__":
         print('Here is a training process driven by the {0} optimizer'.format(opt_name))
         FNO_main(training_data_resolution, save_index, logger, opt, model)
 
-# with mean-std normalization
-#  2.41±0.03%
 
-
-# without mean-std normalization
-# INPUT*0.1-0.75, OUTPUT*100
-# l2 errors
-# 0.0503, 0.0489, 0.0469, 0.0474, 0.0480
-# 4.83±0.12%
 
 
 
