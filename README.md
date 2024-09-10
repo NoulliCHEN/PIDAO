@@ -42,6 +42,7 @@ We provide a detailed readme file to demo the software/code in each case's folde
 - FNO2d_darcy >> FNO for learning Darcy flow
 - PINNs_Burgers >> PINNs for learning Burgers' equation
 - PINNs_cavity >> PINNs for learning cavity flow
+- ModelNet40 >> point cloud classification
 
 If you use the codes in your research work, please cite the following paper: 
   
