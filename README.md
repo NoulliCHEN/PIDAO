@@ -47,7 +47,7 @@ We provide a detailed readme file to demo the software/code in each case's folde
 If you use the codes in your research work, please cite the following paper: 
   
 	@article{chen2024accelerated,
-  	  title={Accelerated optimization in deep learning with a proportion-integral-derivative controller},
+  	  title={Accelerated optimization in deep learning with a proportional-integral-derivative controller},
   	  author={Chen, Song and Liu, Jiaxu and Wang, Pengkai and Cai, Shengze and Xu, Chao and Chu, Jian},
   	  year={2024}
 	}
