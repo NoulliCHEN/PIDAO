@@ -1,6 +1,8 @@
 # PIDAO
 
-### Citation:
+### This repository contains all the codes for our paper published in Nature Conmmunications:
+
+Chen, S., Liu, J., Wang, P., Xu, C., Cai, S. & Chu, J. Accelerated optimization in deep learning with a proportional-integral-derivative controller. Nat Commun 15, 10263 (2024).
 
 This repository is provided for research purposes only. 
 
@@ -49,6 +51,9 @@ If you use the codes in your research work, please cite the following paper:
 	@article{chen2024accelerated,
   	  title={Accelerated optimization in deep learning with a proportional-integral-derivative controller},
   	  author={Chen, Song and Liu, Jiaxu and Wang, Pengkai and Cai, Shengze and Xu, Chao and Chu, Jian},
+  	  journal={Nature Communications},
+  	  volume={15},
+          number={10263},
   	  year={2024}
 	}
 
