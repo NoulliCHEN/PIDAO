@@ -2,7 +2,7 @@
 
 ### This repository contains all the codes for our paper published in Nature Conmmunications:
 
-Chen, S., Liu, J., Wang, P., Xu, C., Cai, S. & Chu, J. Accelerated optimization in deep learning with a proportional-integral-derivative controller. Nat Commun 15, 10263 (2024).
+[Chen, S., Liu, J., Wang, P., Xu, C., Cai, S. & Chu, J. Accelerated optimization in deep learning with a proportional-integral-derivative controller. Nat Commun 15, 10263 (2024).](https://doi.org/10.1038/s41467-024-54451-3)
 
 This repository is provided for research purposes only. 
 
